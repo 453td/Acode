@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Военные карты</title>
+    <style> body { margin: 0; } </style>
+</head>
+<body>
+    <input type="file" id="mapInput" accept="image/*">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+
+    <script>
+        // Инициализация 3D-сцены
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Загрузка карты
+        document.getElementById('mapInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            const imageUrl = URL.createObjectURL(file);
+
+            // Распознавание текста (Tesseract.js)
+            const worker = Tesseract.createWorker();
+            await worker.load();
+            await worker.loadLanguage('rus');
+            await worker.initialize('rus');
+            const { data: { text } } = await worker.recognize(imageUrl);
+            console.log('Распознанный текст:', text);
+
+            // Создание 3D-карты
+            const texture = new THREE.TextureLoader().load(imageUrl);
+            const geometry = new THREE.PlaneGeometry(10, 10);
+            const material = new THREE.MeshBasicMaterial({ map: texture });
+            const mapMesh = new THREE.Mesh(geometry, material);
+            scene.add(mapMesh);
+            camera.position.z = 15;
+        });
+
+        // Анимация
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
