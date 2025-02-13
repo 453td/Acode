@@ -20,7 +20,7 @@
         // Загрузка карты
         document.getElementById('mapInput').addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            const imageUrl = http://kontur-map.ru/map1410787_0_0.htm;
+            const imageUrl = URL.createObjectURL(file);
 
             // Распознавание текста (Tesseract.js)
             const worker = Tesseract.createWorker();
